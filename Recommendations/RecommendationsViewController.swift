@@ -6,19 +6,12 @@
 import UIKit
 import OHHTTPStubs
 
-struct Recommendation {
-    var imageURL = String()
-    var title = String()
-    var tagline = String()
-    var rating: Float = 0.0
-    var isReleased: Bool = false
-}
-
-class RecommendationsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+final class RecommendationsViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    var recommendations = [Recommendation]()
+    private var recommendations: [Recommendation] = [] { didSet { tableView.reloadData() } }
+    private var imageCache: [String: UIImage] = [:]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,92 +23,61 @@ class RecommendationsViewController: UIViewController, UITableViewDataSource, UI
         stub.registerStub()
         // -------- </DO NOT MODIFY INSIDE THIS BLOCK> -------
         // ---------------------------------------------------
-        
+        title = "Top 10 Recommendations"
         tableView.register(UINib(nibName: "RecommendationTableViewCell", bundle: nil), forCellReuseIdentifier: "Cell")
-        tableView.dataSource = self
         tableView.delegate = self
-        
-        // NOTE: please maintain the stubbed url we use here and the usage of
-        // a URLSession dataTask to ensure our stubbed response continues to
-        // work; however, feel free to reorganize/rewrite/refactor as needed
-        guard let url = URL(string: Stub.stubbedURL_doNotChange) else { fatalError() }
-        let request = URLRequest(url: url)
-        let session = URLSession(configuration: .default)
+        tableView.dataSource = self
 
-        let task = session.dataTask(with: request, completionHandler: { (data, response, error) in
-            guard let receivedData = data else { return }
-            
-            // TASK: This feels gross and smells. Can this json parsing be made more robust and extensible?
-            do {
-                let json = try JSONSerialization.jsonObject(with: receivedData, options: JSONSerialization.ReadingOptions(rawValue: UInt(0))) as! [String: AnyObject]
-                
-                if let titles = json["titles"] as? [[String: AnyObject]] {
-                    for title in titles {
-                        var recommendation = Recommendation()
-                        
-                        if let name = title["title"] as? String {
-                            recommendation.title = name
-                        }
-                        
-                        if let isReleased = title["is_released"] as? Bool {
-                            recommendation.isReleased = isReleased
-                        }
-                        
-                        if let ratingObj = title["rating"],
-                            let rating = Float("\(ratingObj)") {
-                            recommendation.rating = rating
-                        }
-                        
-                        if let tagline = title["tagline"] as? String {
-                            recommendation.tagline = tagline
-                        }
-                        
-                        if let image = title["image"] as? String {
-                            recommendation.imageURL = image
-                        }
-
-                        self.recommendations.append(recommendation)
-                    }
-                }
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
-            catch {
-                fatalError("Error parsing stubbed json data: \(error)")
-            }
-        });
-
-        task.resume()
+        Networking()
+            .load(resource: GetRecommendationsResponse.resource()) { [unowned self] data, request, error in
+                guard let data = data else { return }
+                let arraySlice = data.titles
+                    .filter { $0.is_released == true }
+                    .filter { !data.skipped.contains($0.title) }
+                    .filter { !data.titles_owned.contains($0.title) }
+                    .sorted { $0.rating ?? 0.0 > $1.rating ?? 0.0 }
+                    .prefix(10)
+                let recommendations = Array(arraySlice)
+                DispatchQueue.main.async { self.recommendations = recommendations }
+        }
     }
-    
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        imageCache = [:]
+    }
+
+    private func fetchImage(for recommendation: Recommendation, completion: @escaping (UIImage?) -> Void) {
+        if let image = imageCache[recommendation.image] {
+            completion(image)
+            return
+        }
+        Networking()
+            .loadImage(resource: GetRecommendationsResponse.imageResource(for: recommendation)) { [unowned self] image, error in
+                guard let image = image else { return }
+                self.imageCache[recommendation.image] = image
+                DispatchQueue.main.async { completion(image) }
+        }
+    }
+}
+
+extension RecommendationsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        UITableView.automaticDimension
+    }
+}
+
+extension RecommendationsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! RecommendationTableViewCell
-        
         let recommendation = recommendations[indexPath.row]
-
-        cell.titleLabel.text = recommendation.title
-        cell.taglineLabel.text = recommendation.tagline
-        cell.ratingLabel.text = "Rating: \(recommendation.rating)"
-        
-        if let url = URL(string: recommendation.imageURL) {
-            let data = try? Data(contentsOf: url)
-
-            if let imageData = data {
-                let image = UIImage(data: imageData)
-                cell.recommendationImageView?.image = image
-            }
-        }
-
+        cell.configure(with: recommendation)
+        cell.onReuse = { Networking().cancelRequest(for: $0.image) }
+        fetchImage(for: recommendation) { cell.recommendationImageView.image = $0 }
         return cell
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return recommendations.count
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 134
     }
 }

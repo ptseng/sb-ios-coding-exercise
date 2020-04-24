@@ -17,6 +17,8 @@
 		7A87BB3F244F69CC008A8669 /* ratings.json in Resources */ = {isa = PBXBuildFile; fileRef = 7A87BB3E244F69CC008A8669 /* ratings.json */; };
 		7A87BB41244F9A19008A8669 /* Stub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A87BB40244F9A19008A8669 /* Stub.swift */; };
 		C4925D209D942A35ADF2FD9E /* libPods-Recommendations.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4837A2CE5DC84736E4DD6D1B /* libPods-Recommendations.a */; };
+		FBBBDCB124537B4700107481 /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBBBDCB024537B4700107481 /* Networking.swift */; };
+		FBBBDCB324537F4300107481 /* GetRecommendationsResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBBBDCB224537F4300107481 /* GetRecommendationsResource.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		7A87BB3B244F5C38008A8669 /* RecommendationTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RecommendationTableViewCell.xib; sourceTree = "<group>"; };
 		7A87BB3E244F69CC008A8669 /* ratings.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ratings.json; sourceTree = "<group>"; };
 		7A87BB40244F9A19008A8669 /* Stub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stub.swift; sourceTree = "<group>"; };
+		FBBBDCB024537B4700107481 /* Networking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
+		FBBBDCB224537F4300107481 /* GetRecommendationsResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetRecommendationsResource.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				7A87BB42244F9A1F008A8669 /* Do Not Modify These Files */,
+				FBBBDCAF24537AFF00107481 /* Networking */,
 				7A7852F7244F410900651421 /* RecommendationsViewController.swift */,
 				7A87BB3A244F5C38008A8669 /* RecommendationTableViewCell.swift */,
 				7A87BB3B244F5C38008A8669 /* RecommendationTableViewCell.xib */,
@@ -106,6 +111,15 @@
 				7A87BB40244F9A19008A8669 /* Stub.swift */,
 			);
 			path = "Do Not Modify These Files";
+			sourceTree = "<group>";
+		};
+		FBBBDCAF24537AFF00107481 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				FBBBDCB024537B4700107481 /* Networking.swift */,
+				FBBBDCB224537F4300107481 /* GetRecommendationsResource.swift */,
+			);
+			path = Networking;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -207,9 +221,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBBBDCB124537B4700107481 /* Networking.swift in Sources */,
 				7A87BB3C244F5C38008A8669 /* RecommendationTableViewCell.swift in Sources */,
 				7A7852F8244F410900651421 /* RecommendationsViewController.swift in Sources */,
 				7A7852F4244F410900651421 /* AppDelegate.swift in Sources */,
+				FBBBDCB324537F4300107481 /* GetRecommendationsResource.swift in Sources */,
 				7A87BB41244F9A19008A8669 /* Stub.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
