@@ -15,7 +15,6 @@ final class RecommendationsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // ---------------------------------------------------
         // -------- <DO NOT MODIFY INSIDE THIS BLOCK> --------
         // stub the network response with our local ratings.json file
@@ -23,10 +22,11 @@ final class RecommendationsViewController: UIViewController {
         stub.registerStub()
         // -------- </DO NOT MODIFY INSIDE THIS BLOCK> -------
         // ---------------------------------------------------
-        title = "Top 10 Recommendations"
         tableView.register(UINib(nibName: "RecommendationTableViewCell", bundle: nil), forCellReuseIdentifier: "Cell")
         tableView.delegate = self
         tableView.dataSource = self
+
+        self.recommendations = Storage().retrieveRecommendations()
 
         Networking()
             .load(resource: GetRecommendationsResponse.resource()) { [unowned self] data, request, error in
@@ -38,6 +38,7 @@ final class RecommendationsViewController: UIViewController {
                     .sorted { $0.rating ?? 0.0 > $1.rating ?? 0.0 }
                     .prefix(10)
                 let recommendations = Array(arraySlice)
+                Storage().save(recommendations)
                 DispatchQueue.main.async { self.recommendations = recommendations }
         }
     }

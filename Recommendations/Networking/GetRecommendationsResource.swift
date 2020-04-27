@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Recommendation: Decodable {
+struct Recommendation: Codable {
     let title: String
     let is_released: Bool
     let rating: Double?
