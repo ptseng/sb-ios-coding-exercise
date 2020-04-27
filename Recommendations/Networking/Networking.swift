@@ -12,11 +12,6 @@ import UIKit
 /// https://talk.objc.io/episodes/S01E1-tiny-networking-library
 /// https://talk.objc.io/episodes/S01E8-adding-post-requests
 
-// MARK: Error
-enum NetworkingError: Error {
-    case unknown
-}
-
 // MARK: HttpMethod
 enum HttpMethod<Body> {
     case get
